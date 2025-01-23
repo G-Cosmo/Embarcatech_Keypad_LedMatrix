@@ -1,0 +1,4 @@
+[wokwi]
+version = 1
+firmware = "build/Embarcatech_Keypad_LedMatrix.uf2"
+elf = "build/Embarcatech_Keypad_LedMatrix.elf"
