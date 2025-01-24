@@ -46,6 +46,8 @@ pico_enable_stdio_usb(Embarcatech_Keypad_LedMatrix 0)
 
 # Add the standard library to the build
 target_link_libraries(Embarcatech_Keypad_LedMatrix
+        hardware_pwm
+        hardware_pio
         pico_stdlib)
 
 # Add the standard include files to the build
