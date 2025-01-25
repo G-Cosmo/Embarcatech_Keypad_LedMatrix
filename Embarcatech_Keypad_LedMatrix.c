@@ -15,8 +15,8 @@
 #define LED_PIN 7                   // Pino GPIO conectado aos LEDs
 
 const uint buzzer_pin = 14; // GPIO do buzzer
-const uint col_pins[4] = {20, 4, 9, 8}; 
-const uint row_pins[4] = {16, 17, 18, 19};
+const uint row_pins[4] = {28, 27, 26, 22}; 
+const uint col_pins[4] = {21, 20, 19, 18};
 //const uint rgb_1[3] = {28, 27, 26};
 
 // Estrutura para representar um pixel com componentes RGB
@@ -41,6 +41,56 @@ int getIndex(int x, int y) {
         return 24-(y * 5 + (4 - x)); // Linha ímpar (direita para esquerda).
     }
 }
+
+// Função para inicializar o PIO para controle dos LEDs
+void npInit(uint pin) 
+{
+    uint offset = pio_add_program(pio0, &ws2818b_program); // Carregar o programa PIO
+    np_pio = pio0;                                         // Usar o primeiro bloco PIO
+
+    sm = pio_claim_unused_sm(np_pio, false);              // Tentar usar uma state machine do pio0
+    if (sm < 0)                                           // Se não houver disponível no pio0
+    {
+        np_pio = pio1;                                    // Mudar para o pio1
+        sm = pio_claim_unused_sm(np_pio, true);           // Usar uma state machine do pio1
+    }
+
+    ws2818b_program_init(np_pio, sm, offset, pin, 800000.f); // Inicializar state machine para LEDs
+
+    for (uint i = 0; i < LED_COUNT; ++i)                  // Inicializar todos os LEDs como apagados
+    {
+        leds[i].R = 0;
+        leds[i].G = 0;
+        leds[i].B = 0;
+    }
+}
+
+// Função para definir a cor de um LED específico
+void npSetLED(const uint index, const uint8_t r, const uint8_t g, const uint8_t b) 
+{
+    leds[index].R = r;                                    // Definir componente vermelho
+    leds[index].G = g;                                    // Definir componente verde
+    leds[index].B = b;                                    // Definir componente azul
+}
+
+// Função para limpar (apagar) todos os LEDs
+void npClear() 
+{
+    for (uint i = 0; i < LED_COUNT; ++i)                  // Iterar sobre todos os LEDs
+        npSetLED(i, 0, 0, 0);                             // Definir cor como preta (apagado)
+}
+
+// Função para atualizar os LEDs no hardware
+void npWrite() 
+{
+    for (uint i = 0; i < LED_COUNT; ++i)                  // Iterar sobre todos os LEDs
+    {
+        pio_sm_put_blocking(np_pio, sm, leds[i].G);       // Enviar componente verde
+        pio_sm_put_blocking(np_pio, sm, leds[i].R);       // Enviar componente vermelho
+        pio_sm_put_blocking(np_pio, sm, leds[i].B);       // Enviar componente azul
+    }
+}
+
 //função para inicializar o buzzer
 void pico_buzzer_init(uint gpio) {
     gpio_set_function(gpio, GPIO_FUNC_PWM);
@@ -150,55 +200,6 @@ void play_musica(uint gpio) {
     }
 }
 
-// Função para inicializar o PIO para controle dos LEDs
-void npInit(uint pin) 
-{
-    uint offset = pio_add_program(pio0, &ws2818b_program); // Carregar o programa PIO
-    np_pio = pio0;                                         // Usar o primeiro bloco PIO
-
-    sm = pio_claim_unused_sm(np_pio, false);              // Tentar usar uma state machine do pio0
-    if (sm < 0)                                           // Se não houver disponível no pio0
-    {
-        np_pio = pio1;                                    // Mudar para o pio1
-        sm = pio_claim_unused_sm(np_pio, true);           // Usar uma state machine do pio1
-    }
-
-    ws2818b_program_init(np_pio, sm, offset, pin, 800000.f); // Inicializar state machine para LEDs
-
-    for (uint i = 0; i < LED_COUNT; ++i)                  // Inicializar todos os LEDs como apagados
-    {
-        leds[i].R = 0;
-        leds[i].G = 0;
-        leds[i].B = 0;
-    }
-}
-
-// Função para definir a cor de um LED específico
-void npSetLED(const uint index, const uint8_t r, const uint8_t g, const uint8_t b) 
-{
-    leds[index].R = r;                                    // Definir componente vermelho
-    leds[index].G = g;                                    // Definir componente verde
-    leds[index].B = b;                                    // Definir componente azul
-}
-
-// Função para limpar (apagar) todos os LEDs
-void npClear() 
-{
-    for (uint i = 0; i < LED_COUNT; ++i)                  // Iterar sobre todos os LEDs
-        npSetLED(i, 0, 0, 0);                             // Definir cor como preta (apagado)
-}
-
-// Função para atualizar os LEDs no hardware
-void npWrite() 
-{
-    for (uint i = 0; i < LED_COUNT; ++i)                  // Iterar sobre todos os LEDs
-    {
-        pio_sm_put_blocking(np_pio, sm, leds[i].G);       // Enviar componente verde
-        pio_sm_put_blocking(np_pio, sm, leds[i].R);       // Enviar componente vermelho
-        pio_sm_put_blocking(np_pio, sm, leds[i].B);       // Enviar componente azul
-    }
-}
-
 // Matriz de mapeamento de teclas
 const char keys[ROWS][COLS] = {
     {'1', '2', '3', 'A'},
@@ -237,6 +238,7 @@ char pico_scan_keypad() {
     }
     return '\0'; // Retorna null se nenhum botão for pressionado
 }
+
 void animacao1(){
     int matriz[5][5][3] = {
                 {{0, 101, 4}, {0, 101, 4}, {0, 101, 4}, {0, 101, 4}, {0, 101, 4}},
@@ -352,6 +354,7 @@ void animacao1(){
     sleep_ms(250);
     npClear();
 }
+
 void animacao2(){
     for (int k = 0; k < 3; k++) {
         for (int i = 0; i < 25; i++) {
@@ -368,6 +371,7 @@ void animacao2(){
         }
     }
 }
+
 void pico_keypad_control_led(char key) {
     switch (key) {
         case '1':
