@@ -6,7 +6,7 @@
 #include "hardware/pio.h"           // Biblioteca para manipulação de periféricos PIO
 #include "ws2818b.pio.h"             // Programa para controle de LEDs WS2812B
 #include "pico/bootrom.h" 
-
+         
 
 #define ROWS 4
 #define COLS 4
@@ -14,18 +14,9 @@
 #define LED_COUNT 25                // Número de LEDs na matriz
 #define LED_PIN 7                   // Pino GPIO conectado aos LEDs
 
-#define NOTE_DO1  261
-#define NOTE_RE  294
-#define NOTE_MI  329
-#define NOTE_FA  349
-#define NOTE_SOL  392
-#define NOTE_LA  440
-#define NOTE_SI  493
-#define NOTE_DO2  523
-
-const uint buzzer_pin = 21; // GPIO do buzzer
-const uint col_pins[4] = {20,4,9,8}; 
-const uint row_pins[4] = {16,17,18,19};
+const uint buzzer_pin = 14; // GPIO do buzzer
+const uint col_pins[4] = {20, 4, 9, 8}; 
+const uint row_pins[4] = {16, 17, 18, 19};
 //const uint rgb_1[3] = {28, 27, 26};
 
 // Estrutura para representar um pixel com componentes RGB
@@ -79,22 +70,83 @@ void pico_buzzer_stop(uint gpio) {
 
 //função para tocar uma melodia
 void play_musica(uint gpio) {
-    int melody[] = {
-        NOTE_FA, NOTE_RE, NOTE_FA, NOTE_FA, NOTE_RE, NOTE_FA, NOTE_FA, NOTE_RE, NOTE_RE, NOTE_FA, NOTE_FA, NOTE_RE,
-        NOTE_FA, NOTE_FA, NOTE_RE, NOTE_RE, NOTE_FA, NOTE_FA, NOTE_RE
-    };
-    int noteDurations[] = {
-        2, 2, 4, 4, 2, 4, 4, 4, 4, 4, 4,
-        2, 4, 4, 4, 4, 4, 4, 2
-    };
+    int melody[] = {294,330,349,440,392,440,262,294,330,349,330,392,440,392,349,349,349,349,440,440,392,349,
+    440,440,440,392,440,392,349,349,349,349,440,440,392,349,440,440,440,554,554,554,349,349,349,440,440,392,349,
+    466,466,466,392,523,440,659,698,587,698,880,659,554,880,1109,1175};
+
+    int noteDurations[] = {600,300,600,300,300,300,600,600,300,300,300,300,300,300,300,150,150,150,150,150,150,300,
+    150,150,150,150,150,150,300,150,150,150,150,150,150,300,150,150,300,150,150,300,150,150,150,150,150,150,300,
+    150,150,150,300,300,300,300, 75, 75, 75, 75, 75, 75, 75, 75,1200};
+    
+    int pausa[ ] = {300, 0 ,600,150,150, 0, 600,300, 0, 300,300,300,300,300,600,150,150,150,150,150,150,300,150, 
+    150,150,150,150,150,300,150,150,150,150,150,150,300,150,150,300,150,150,300,150,150,150,150,150,150,300,150,
+    150,150,300,300,300,300, 75, 75, 75, 75, 75, 75, 75,  75, 1200 }; 
     
     int length = sizeof(melody) /sizeof(melody)[0];
     for (int i = 0; i < length; i++) {
-        int noteDuration = 1000 / noteDurations[i];
-        pico_buzzer_play(gpio, melody[i]);
-        sleep_ms(noteDuration);
+        int noteDuration = noteDurations[i];
+        int frequency = melody[i];
+        int halfDuration = noteDuration / 2;
+        int amplitude = (frequency % 5) + 1; // Altura da oscilação baseada na frequência
+
+        // Mapeia a frequência para uma cor
+        int red = 255 - (frequency % 256);
+        int blue = frequency % 256;
+        int green = 0; // se quiser dar uma variada na cor, basta alterar o valor de green
+
+        pico_buzzer_play(gpio, frequency);
+
+        for (int t = 0; t < noteDuration; t += 50) { 
+            for (int y = 0; y < 5; y++) {
+                for (int x = 0; x < 5; x++) {
+                    int offset = (t < halfDuration) ? (t * amplitude / halfDuration) : ((noteDuration - t) * amplitude / halfDuration);
+                    if (x == 2) { // Coluna central
+                        if (y == 2 - offset || y == 2 + offset) {
+                            npSetLED(y * 5 + x, red, green, blue); // Acende o LED com a cor calculada
+                        } else {
+                            npSetLED(y * 5 + x, 0, 0, 0); // Apaga o LED
+                        }
+                    } else if (x < 2) { // Colunas à esquerda
+                        int delay = (2 - x) * 50; // Atraso para criar um efeito de cascata
+                        if (t >= delay) {
+                            int localOffset = ((t - delay) < halfDuration) ? ((t - delay) * amplitude / halfDuration) : ((noteDuration - (t - delay)) * amplitude / halfDuration);
+                            if (y == 2 - localOffset || y == 2 + localOffset) {
+                                npSetLED(y * 5 + x, red, green, blue); // Acende o LED com a cor calculada
+                            } else {
+                                npSetLED(y * 5 + x, 0, 0, 0); 
+                            }
+                        } else {
+                            npSetLED(y * 5 + x, 0, 0, 0); // Apaga o LED
+                        }
+                    } else { // Colunas à direita
+                        int delay = (x - 2) * 50; // Atraso para criar um efeito de cascata
+                        if (t >= delay) {
+                            int localOffset = ((t - delay) < halfDuration) ? ((t - delay) * amplitude / halfDuration) : ((noteDuration - (t - delay)) * amplitude / halfDuration);
+                            if (y == 2 - localOffset || y == 2 + localOffset) {
+                                npSetLED(y * 5 + x, red, green, blue); // Acende o LED com a cor calculada
+                            } else {
+                                npSetLED(y * 5 + x, 0, 0, 0); // Apaga o LED
+                            }
+                        } else {
+                            npSetLED(y * 5 + x, 0, 0, 0); // Apaga o LED
+                        }
+                    }
+                }
+            }
+            npWrite(); // Atualiza os LEDs
+            sleep_ms(50); // Espera 50ms
+        }
+        
         pico_buzzer_stop(gpio);
-        sleep_ms(noteDuration * 0.3);
+
+        // Apaga todos os LEDs após a duração da nota
+        for (int y = 0; y < 5; y++) {
+            for (int x = 0; x < 5; x++) {
+                npSetLED(y * 5 + x, 0, 0, 0);
+            }
+        }
+        npWrite();
+        sleep_ms(pausa[i]);
     }
 }
 
@@ -323,6 +375,80 @@ void pico_keypad_control_led(char key) {
             break;
         case '2':
             animacao2();
+            break;
+        case '3':
+            npClear();
+            for (int i = 0; i < 25; i++)
+            {
+                npSetLED(i, 0, 0, 255);
+            }
+            npWrite();
+            break;
+        case 'A':
+            
+            break;
+        case '4':
+            npClear(); 
+            for (int i = 0; i < 25; i++)
+            {
+                npSetLED(i, 255, 255, 0);
+            }
+            npWrite();
+            break;
+        case '5':
+            npClear();
+            for (int i = 0; i < 25; i++)
+            {
+                npSetLED(i, 255, 0, 255);
+            }
+            npWrite();
+            break;
+        case '6':
+            npClear();
+            for (int i = 0; i < 25; i++)
+            {
+                npSetLED(i, 0, 255, 255);
+            }
+            npWrite();
+            break;
+        case 'B':
+            
+            break;
+        case '7':
+            npClear();
+            for (int i = 0; i < 25; i++)
+            {
+                npSetLED(i, 255, 255, 255);
+            }
+            npWrite();
+            break;
+        case '8':
+            npClear();
+            for (int i = 0; i < 25; i++)
+            {
+                npSetLED(i, 100, 255, 100);
+            }
+            npWrite();
+            break;
+        case '9':
+            npClear();
+            for (int i = 0; i < 25; i++)
+            {
+                npSetLED(i, 255, 100, 100);
+            }
+            npWrite();
+            break;
+        case 'C':
+            
+            break;
+        case '0': // Desliga todos os LEDS de uma vez
+            play_musica(buzzer_pin);
+            npClear();
+            break;
+        case '*': //Reset
+            sleep_ms(1000); // Espera 1 segundo antes de reiniciar no modo bootset
+            reset_usb_boot(0, 0); // Reinicia o dispositivo no modo bootset
+            break;
         default:
             printf("Tecla '%c' não mapeada.\n", key);
             break;
@@ -333,19 +459,18 @@ void pico_keypad_control_led(char key) {
 int main()
 {
     char key;
-    stdio_init_all();
+    //stdio_init_all();
     pico_init_keypad(row_pins, col_pins);
     pico_buzzer_init(buzzer_pin);                         // Inicializar o buzzer
     npInit(LED_PIN);                                      // Inicializar os LEDs
     npClear();                                            // Apagar todos os LEDs
-    npWrite();                                            // Atualizar o estado inicial dos LEDs
+    npWrite();                                        // Atualizar o estado inicial dos LEDs
 
     while (true) {
-        key = pico_scan_keypad(row_pins, col_pins, &keys); 
+        key = pico_scan_keypad(); 
         if (key != '\0') {
             pico_keypad_control_led(key); // Executa a ação correspondente no modo padrão (LEDs)
         }
-
         sleep_ms(100);
     }
 }

@@ -60,7 +60,7 @@
     [ "keypad1:R2", "pico:GP17", "yellow", [ "v0" ] ],
     [ "keypad1:R1", "pico:GP16", "yellow", [ "v0" ] ],
     [ "bz1:1", "pico:GND.4", "green", [ "v0" ] ],
-    [ "pico:GP21", "bz1:2", "green", [ "h0" ] ],
+    [ "pico:GP14", "bz1:2", "green", [ "h0" ] ],
     [ "pico:GP7", "rgb1:DIN", "green", [ "h-86.4", "v-28.8" ] ],
     [ "rgb1:VSS", "gnd1:GND", "green", [ "v-0.9", "h56.8" ] ],
     [ "rgb1:VDD", "vcc1:VCC", "green", [ "h-9.6", "v-38.4" ] ],
