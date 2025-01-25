@@ -1,3 +1,4 @@
+# ====================================================================================
 # Generated Cmake Pico project file
 
 cmake_minimum_required(VERSION 3.13)
@@ -45,13 +46,13 @@ pico_generate_pio_header(Embarcatech_Keypad_LedMatrix ${CMAKE_CURRENT_LIST_DIR}/
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(Embarcatech_Keypad_LedMatrix 0)
-pico_enable_stdio_usb(Embarcatech_Keypad_LedMatrix 0)
+pico_enable_stdio_usb(Embarcatech_Keypad_LedMatrix 1)
 
 # Add the standard library to the build
 target_link_libraries(Embarcatech_Keypad_LedMatrix
-        hardware_pwm
+        pico_stdlib
         hardware_pio
-        pico_stdlib)
+        hardware_pwm)
 
 # Add the standard include files to the build
 target_include_directories(Embarcatech_Keypad_LedMatrix PRIVATE
@@ -60,7 +61,9 @@ target_include_directories(Embarcatech_Keypad_LedMatrix PRIVATE
 
 # Add any user requested libraries
 target_link_libraries(Embarcatech_Keypad_LedMatrix 
-        
+        pico_stdlib
+        hardware_pio
+        hardware_clocks
         )
 
 pico_add_extra_outputs(Embarcatech_Keypad_LedMatrix)

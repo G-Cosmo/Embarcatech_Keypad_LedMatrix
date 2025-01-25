@@ -3,10 +3,10 @@
 #include "hardware/timer.h"
 #include "hardware/pwm.h"
 #include "hardware/clocks.h"
-#include <hardware/pio.h>           // Biblioteca para manipulação de periféricos PIO
+#include "hardware/pio.h"           // Biblioteca para manipulação de periféricos PIO
+#include "ws2818b.pio.h"             // Programa para controle de LEDs WS2812B
 #include "pico/bootrom.h" 
-
-#include "ws2818b.pio.h"            // Programa para controle de LEDs WS2818B
+         
 
 #define ROWS 4
 #define COLS 4
@@ -24,6 +24,7 @@ struct pixel_t {
     uint8_t G, R, B;                // Componentes de cor: Verde, Vermelho e Azul
 };
 
+
 typedef struct pixel_t pixel_t;     // Alias para a estrutura pixel_t
 typedef pixel_t npLED_t;            // Alias para facilitar o uso no contexto de LEDs
 
@@ -31,6 +32,15 @@ npLED_t leds[LED_COUNT];            // Array para armazenar o estado de cada LED
 PIO np_pio;                         // Variável para referenciar a instância PIO usada
 uint sm;                            // Variável para armazenar o número do state machine usado
 
+int getIndex(int x, int y) {
+    // Se a linha for par (0, 2, 4), percorremos da esquerda para a direita.
+    // Se a linha for ímpar (1, 3), percorremos da direita para a esquerda.
+    if (y % 2 == 0) {
+        return 24-(y * 5 + x); // Linha par (esquerda para direita).
+    } else {
+        return 24-(y * 5 + (4 - x)); // Linha ímpar (direita para esquerda).
+    }
+}
 //função para inicializar o buzzer
 void pico_buzzer_init(uint gpio) {
     gpio_set_function(gpio, GPIO_FUNC_PWM);
@@ -227,24 +237,144 @@ char pico_scan_keypad() {
     }
     return '\0'; // Retorna null se nenhum botão for pressionado
 }
-
+void animacao1(){
+    int matriz[5][5][3] = {
+                {{0, 101, 4}, {0, 101, 4}, {0, 101, 4}, {0, 101, 4}, {0, 101, 4}},
+                {{0, 101, 4}, {0, 0, 0}, {0, 101, 4}, {0, 0, 0}, {0, 101, 4}},
+                {{0, 101, 4}, {0, 101, 4}, {0, 0, 0}, {0, 101, 4}, {0, 101, 4}},
+                {{0, 101, 4}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 101, 4}},
+                {{0, 101, 4}, {0, 0, 0}, {0, 101, 4}, {0, 0, 0}, {0, 101, 4}}
+                };
+    // Desenhando Sprite contido na matriz.c
+    for(int linha = 0; linha < 5; linha++){
+        for(int coluna = 0; coluna < 5; coluna++){
+            int posicao = getIndex(linha, coluna);
+            npSetLED(posicao, matriz[coluna][linha][0], matriz[coluna][linha][1], matriz[coluna][linha][2]);
+        }
+    }
+    npWrite();
+    sleep_ms(500);
+    npClear();
+    int matriz2[5][5][3] = {
+        {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {0, 0, 0}, {255, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
+        };
+    for(int linha = 0; linha < 5; linha++){
+        for(int coluna = 0; coluna < 5; coluna++){
+            int posicao = getIndex(linha, coluna);
+            npSetLED(posicao, matriz2[coluna][linha][0], matriz2[coluna][linha][1], matriz2[coluna][linha][2]);
+        }
+    }
+    npWrite();
+    sleep_ms(250);
+    npClear();
+    int matriz3[5][5][3] = {
+        {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {255, 0, 0}, {255, 255, 0}, {255, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
+        };
+    for(int linha = 0; linha < 5; linha++){
+        for(int coluna = 0; coluna < 5; coluna++){
+            int posicao = getIndex(linha, coluna);
+            npSetLED(posicao, matriz3[coluna][linha][0], matriz3[coluna][linha][1], matriz3[coluna][linha][2]);
+        }
+    }
+    npWrite();
+    sleep_ms(250);
+    npClear();
+    int matriz4[5][5][3] = {
+        {{255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}},
+        {{255, 0, 0}, {255, 255, 0}, {255, 255, 0}, {255, 255, 0}, {255, 0, 0}},
+        {{255, 0, 0}, {255, 255, 0}, {255, 0, 0}, {255, 255, 0}, {255, 0, 0}},
+        {{255, 0, 0}, {255, 255, 0}, {255, 255, 0}, {255, 255, 0}, {255, 0, 0}},
+        {{255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}}
+        };
+    for(int linha = 0; linha < 5; linha++){
+        for(int coluna = 0; coluna < 5; coluna++){
+            int posicao = getIndex(linha, coluna);
+            npSetLED(posicao, matriz4[coluna][linha][0], matriz4[coluna][linha][1], matriz4[coluna][linha][2]);
+        }
+    }
+    npWrite();
+    sleep_ms(250);
+    npClear();
+    int matriz5[5][5][3] = {
+        {{255, 255, 0}, {255, 255, 0}, {255, 255, 0}, {255, 255, 0}, {255, 255, 0}},
+        {{255, 255, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 255, 0}},
+        {{255, 255, 0}, {255, 0, 0}, {0,0,0}, {255, 0, 0}, {255, 255, 0}},
+        {{255, 255, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 255, 0}},
+        {{255, 255, 0}, {255, 255, 0}, {255, 255, 0}, {255, 255, 0}, {255, 255, 0}}
+        };
+    for(int linha = 0; linha < 5; linha++){
+        for(int coluna = 0; coluna < 5; coluna++){
+            int posicao = getIndex(linha, coluna);
+            npSetLED(posicao, matriz5[coluna][linha][0], matriz5[coluna][linha][1], matriz5[coluna][linha][2]);
+        }
+    }
+    npWrite();
+    sleep_ms(250);
+    npClear();
+    int matriz6[5][5][3] = {
+        {{255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}},
+        {{255, 0, 0}, {0,0,0}, {0,0,0}, {0,0,0}, {255, 0, 0}},
+        {{255, 0, 0}, {0,0,0}, {0,0,0}, {0,0,0}, {255, 0, 0}},
+        {{255, 0, 0}, {0,0,0}, {0,0,0}, {0,0,0}, {255, 0, 0}},
+        {{255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}}
+        };
+    for(int linha = 0; linha < 5; linha++){
+        for(int coluna = 0; coluna < 5; coluna++){
+            int posicao = getIndex(linha, coluna);
+            npSetLED(posicao, matriz6[coluna][linha][0], matriz6[coluna][linha][1], matriz6[coluna][linha][2]);
+        }
+    }
+    npWrite();
+    sleep_ms(250);
+    npClear();
+    int matriz7[5][5][3] = {
+        {{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
+        {{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
+        {{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
+        {{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
+        {{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}}
+        };
+    for(int linha = 0; linha < 5; linha++){
+        for(int coluna = 0; coluna < 5; coluna++){
+            int posicao = getIndex(linha, coluna);
+            npSetLED(posicao, matriz7[coluna][linha][0], matriz7[coluna][linha][1], matriz7[coluna][linha][2]);
+        }
+    }
+    npWrite();
+    sleep_ms(250);
+    npClear();
+}
+void animacao2(){
+    for (int k = 0; k < 3; k++) {
+        for (int i = 0; i < 25; i++) {
+            npClear();
+            if (k == 0) {
+                npSetLED(i, 255, 0, 0); // Vermelho
+            } else if (k == 1) {
+                npSetLED(i, 0, 255, 0); // Verde
+            } else {
+                npSetLED(i, 0, 0, 255); // Azul
+            }
+            npWrite();
+            sleep_ms(200);
+        }
+    }
+}
 void pico_keypad_control_led(char key) {
     switch (key) {
         case '1':
-            npClear();
-            for (int i = 0; i < 25; i++)
-            {
-                npSetLED(i, 255, 0, 0);
-            }
-            npWrite();
+            animacao1();
             break;
         case '2':
-            npClear(); 
-            for (int i = 0; i < 25; i++)
-            {
-                npSetLED(i, 0, 255, 0);
-            }
-            npWrite();
+            animacao2();
             break;
         case '3':
             npClear();
@@ -324,6 +454,7 @@ void pico_keypad_control_led(char key) {
             break;
     }
 }
+
 
 int main()
 {
