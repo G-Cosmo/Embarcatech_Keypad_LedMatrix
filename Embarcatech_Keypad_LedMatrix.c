@@ -4,7 +4,7 @@
 #include "hardware/pwm.h"
 #include "hardware/clocks.h"
 #include "hardware/pio.h"           // Biblioteca para manipulação de periféricos PIO
-#include "ws2812.pio.h"             // Programa para controle de LEDs WS2812B
+#include "ws2818b.pio.h"             // Programa para controle de LEDs WS2812B
 #include "pico/bootrom.h" 
 
 
@@ -24,14 +24,15 @@
 #define NOTE_DO2  523
 
 const uint buzzer_pin = 21; // GPIO do buzzer
-const uint col_pins[4] = {4, 3, 2, 1}; 
-const uint row_pins[4] = {8, 7, 6, 5};
+const uint col_pins[4] = {20,4,9,8}; 
+const uint row_pins[4] = {16,17,18,19};
 //const uint rgb_1[3] = {28, 27, 26};
 
 // Estrutura para representar um pixel com componentes RGB
 struct pixel_t { 
     uint8_t G, R, B;                // Componentes de cor: Verde, Vermelho e Azul
 };
+
 
 typedef struct pixel_t pixel_t;     // Alias para a estrutura pixel_t
 typedef pixel_t npLED_t;            // Alias para facilitar o uso no contexto de LEDs
@@ -40,6 +41,15 @@ npLED_t leds[LED_COUNT];            // Array para armazenar o estado de cada LED
 PIO np_pio;                         // Variável para referenciar a instância PIO usada
 uint sm;                            // Variável para armazenar o número do state machine usado
 
+int getIndex(int x, int y) {
+    // Se a linha for par (0, 2, 4), percorremos da esquerda para a direita.
+    // Se a linha for ímpar (1, 3), percorremos da direita para a esquerda.
+    if (y % 2 == 0) {
+        return 24-(y * 5 + x); // Linha par (esquerda para direita).
+    } else {
+        return 24-(y * 5 + (4 - x)); // Linha ímpar (direita para esquerda).
+    }
+}
 //função para inicializar o buzzer
 void pico_buzzer_init(uint gpio) {
     gpio_set_function(gpio, GPIO_FUNC_PWM);
@@ -175,71 +185,150 @@ char pico_scan_keypad() {
     }
     return '\0'; // Retorna null se nenhum botão for pressionado
 }
-
+void animacao1(){
+    int matriz[5][5][3] = {
+                {{0, 101, 4}, {0, 101, 4}, {0, 101, 4}, {0, 101, 4}, {0, 101, 4}},
+                {{0, 101, 4}, {0, 0, 0}, {0, 101, 4}, {0, 0, 0}, {0, 101, 4}},
+                {{0, 101, 4}, {0, 101, 4}, {0, 0, 0}, {0, 101, 4}, {0, 101, 4}},
+                {{0, 101, 4}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 101, 4}},
+                {{0, 101, 4}, {0, 0, 0}, {0, 101, 4}, {0, 0, 0}, {0, 101, 4}}
+                };
+    // Desenhando Sprite contido na matriz.c
+    for(int linha = 0; linha < 5; linha++){
+        for(int coluna = 0; coluna < 5; coluna++){
+            int posicao = getIndex(linha, coluna);
+            npSetLED(posicao, matriz[coluna][linha][0], matriz[coluna][linha][1], matriz[coluna][linha][2]);
+        }
+    }
+    npWrite();
+    sleep_ms(500);
+    npClear();
+    int matriz2[5][5][3] = {
+        {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {0, 0, 0}, {255, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
+        };
+    for(int linha = 0; linha < 5; linha++){
+        for(int coluna = 0; coluna < 5; coluna++){
+            int posicao = getIndex(linha, coluna);
+            npSetLED(posicao, matriz2[coluna][linha][0], matriz2[coluna][linha][1], matriz2[coluna][linha][2]);
+        }
+    }
+    npWrite();
+    sleep_ms(250);
+    npClear();
+    int matriz3[5][5][3] = {
+        {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {255, 0, 0}, {255, 255, 0}, {255, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {0, 0, 0}},
+        {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
+        };
+    for(int linha = 0; linha < 5; linha++){
+        for(int coluna = 0; coluna < 5; coluna++){
+            int posicao = getIndex(linha, coluna);
+            npSetLED(posicao, matriz3[coluna][linha][0], matriz3[coluna][linha][1], matriz3[coluna][linha][2]);
+        }
+    }
+    npWrite();
+    sleep_ms(250);
+    npClear();
+    int matriz4[5][5][3] = {
+        {{255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}},
+        {{255, 0, 0}, {255, 255, 0}, {255, 255, 0}, {255, 255, 0}, {255, 0, 0}},
+        {{255, 0, 0}, {255, 255, 0}, {255, 0, 0}, {255, 255, 0}, {255, 0, 0}},
+        {{255, 0, 0}, {255, 255, 0}, {255, 255, 0}, {255, 255, 0}, {255, 0, 0}},
+        {{255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}}
+        };
+    for(int linha = 0; linha < 5; linha++){
+        for(int coluna = 0; coluna < 5; coluna++){
+            int posicao = getIndex(linha, coluna);
+            npSetLED(posicao, matriz4[coluna][linha][0], matriz4[coluna][linha][1], matriz4[coluna][linha][2]);
+        }
+    }
+    npWrite();
+    sleep_ms(250);
+    npClear();
+    int matriz5[5][5][3] = {
+        {{255, 255, 0}, {255, 255, 0}, {255, 255, 0}, {255, 255, 0}, {255, 255, 0}},
+        {{255, 255, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 255, 0}},
+        {{255, 255, 0}, {255, 0, 0}, {0,0,0}, {255, 0, 0}, {255, 255, 0}},
+        {{255, 255, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 255, 0}},
+        {{255, 255, 0}, {255, 255, 0}, {255, 255, 0}, {255, 255, 0}, {255, 255, 0}}
+        };
+    for(int linha = 0; linha < 5; linha++){
+        for(int coluna = 0; coluna < 5; coluna++){
+            int posicao = getIndex(linha, coluna);
+            npSetLED(posicao, matriz5[coluna][linha][0], matriz5[coluna][linha][1], matriz5[coluna][linha][2]);
+        }
+    }
+    npWrite();
+    sleep_ms(250);
+    npClear();
+    int matriz6[5][5][3] = {
+        {{255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}},
+        {{255, 0, 0}, {0,0,0}, {0,0,0}, {0,0,0}, {255, 0, 0}},
+        {{255, 0, 0}, {0,0,0}, {0,0,0}, {0,0,0}, {255, 0, 0}},
+        {{255, 0, 0}, {0,0,0}, {0,0,0}, {0,0,0}, {255, 0, 0}},
+        {{255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}, {255, 0, 0}}
+        };
+    for(int linha = 0; linha < 5; linha++){
+        for(int coluna = 0; coluna < 5; coluna++){
+            int posicao = getIndex(linha, coluna);
+            npSetLED(posicao, matriz6[coluna][linha][0], matriz6[coluna][linha][1], matriz6[coluna][linha][2]);
+        }
+    }
+    npWrite();
+    sleep_ms(250);
+    npClear();
+    int matriz7[5][5][3] = {
+        {{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
+        {{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
+        {{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
+        {{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
+        {{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}}
+        };
+    for(int linha = 0; linha < 5; linha++){
+        for(int coluna = 0; coluna < 5; coluna++){
+            int posicao = getIndex(linha, coluna);
+            npSetLED(posicao, matriz7[coluna][linha][0], matriz7[coluna][linha][1], matriz7[coluna][linha][2]);
+        }
+    }
+    npWrite();
+    sleep_ms(250);
+    npClear();
+}
+void animacao2(){
+    for (int k = 0; k < 3; k++) {
+        for (int i = 0; i < 25; i++) {
+            npClear();
+            if (k == 0) {
+                npSetLED(i, 255, 0, 0); // Vermelho
+            } else if (k == 1) {
+                npSetLED(i, 0, 255, 0); // Verde
+            } else {
+                npSetLED(i, 0, 0, 255); // Azul
+            }
+            npWrite();
+            sleep_ms(200);
+        }
+    }
+}
 void pico_keypad_control_led(char key) {
     switch (key) {
         case '1':
-            gpio_put(rgb_1[0], !gpio_get(rgb_1[0])); // Alterna o estado do canal vermelho do LED 1
-            printf("Canal vermelho do led 1 alternado.\n");
+            animacao1();
             break;
         case '2':
-            gpio_put(rgb_1[1], !gpio_get(rgb_1[1])); // Alterna o estado do canal verde do LED 1
-            printf("Canal verde do led 1 alternado.\n");
-            break;
-        case '3':
-            gpio_put(rgb_1[2], !gpio_get(rgb_1[2])); // Alterna o estado do canal azul do LED 1
-            printf("Canal azul do led 1 alternado.\n");
-            break;
-        case 'A':
-            pico_rgb_turn_off(rgb_1); // Desliga o LED 1
-            printf("Led 1 desligado\n");
-            break;
-        case '4':
-            gpio_put(rgb_2[0], !gpio_get(rgb_2[0])); // Alterna o estado do canal vermelho do LED 2
-            printf("Canal vermelho do led 2 alternado.\n");
-            break;
-        case '5':
-            gpio_put(rgb_2[1], !gpio_get(rgb_2[1])); // Alterna o estado do canal verde do LED 2
-            printf("Canal verde do led 2 alternado.\n");
-            break;
-        case '6':
-            gpio_put(rgb_2[2], !gpio_get(rgb_2[2])); // Alterna o estado do canal azul do LED 2
-            printf("Canal azul do led 2 alternado.\n");
-            break;
-        case 'B':
-            pico_rgb_turn_off(rgb_2); // Desliga o LED 2
-            printf("Led 2 desligado\n");
-            break;
-        case '7':
-            gpio_put(rgb_3[0], !gpio_get(rgb_3[0])); // Alterna o estado do canal vermelho do LED 3
-            printf("Canal vermelho do led 3 alternado.\n");
-            break;
-        case '8':
-            gpio_put(rgb_3[1], !gpio_get(rgb_3[1])); // Alterna o estado do canal verde do LED 3
-            printf("Canal verde do led 3 alternado.\n");
-            break;
-        case '9':
-            gpio_put(rgb_3[2], !gpio_get(rgb_3[2])); // Alterna o estado do canal azul do LED 3
-            printf("Canal azul do led 3 alternado.\n");
-            break;
-        case 'C':
-            pico_rgb_turn_off(rgb_3); // Desliga o LED 3
-            printf("Led 3 desligado\n");
-            break;
-        case '0': // Desliga todos os LEDS de uma vez
-            pico_rgb_turn_off(rgb_1);
-            pico_rgb_turn_off(rgb_2);
-            pico_rgb_turn_off(rgb_3);
-            printf("Todos os LEDS desligados");
-            break;
-        case '*': //Reset
-            sleep_ms(1000); // Espera 1 segundo antes de reiniciar no modo bootset
-            reset_usb_boot(0, 0); // Reinicia o dispositivo no modo bootset
+            animacao2();
         default:
             printf("Tecla '%c' não mapeada.\n", key);
             break;
     }
 }
+
 
 int main()
 {
@@ -256,7 +345,6 @@ int main()
         if (key != '\0') {
             pico_keypad_control_led(key); // Executa a ação correspondente no modo padrão (LEDs)
         }
-
 
         sleep_ms(100);
     }

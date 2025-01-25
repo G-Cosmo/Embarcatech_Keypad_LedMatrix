@@ -1,3 +1,17 @@
+# == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
+if(WIN32)
+    set(USERHOME $ENV{USERPROFILE})
+else()
+    set(USERHOME $ENV{HOME})
+endif()
+set(sdkVersion 1.5.1)
+set(toolchainVersion 13_2_Rel1)
+set(picotoolVersion 2.0.0)
+set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
+if (EXISTS ${picoVscode})
+    include(${picoVscode})
+endif()
+# ====================================================================================
 # Generated Cmake Pico project file
 
 cmake_minimum_required(VERSION 3.13)
@@ -15,15 +29,15 @@ if(WIN32)
 else()
     set(USERHOME $ENV{HOME})
 endif()
-set(sdkVersion 2.1.0)
-set(toolchainVersion 13_3_Rel1)
-set(picotoolVersion 2.1.0)
+set(sdkVersion 1.5.1)
+set(toolchainVersion 13_2_Rel1)
+set(picotoolVersion 2.0.0)
 set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
 if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico_w CACHE STRING "Board type")
+set(PICO_BOARD pico CACHE STRING "Board type")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
@@ -40,15 +54,17 @@ add_executable(Embarcatech_Keypad_LedMatrix Embarcatech_Keypad_LedMatrix.c )
 pico_set_program_name(Embarcatech_Keypad_LedMatrix "Embarcatech_Keypad_LedMatrix")
 pico_set_program_version(Embarcatech_Keypad_LedMatrix "0.1")
 
+# Generate PIO header
+pico_generate_pio_header(Embarcatech_Keypad_LedMatrix ${CMAKE_CURRENT_LIST_DIR}/ws2818b.pio)
+
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(Embarcatech_Keypad_LedMatrix 0)
-pico_enable_stdio_usb(Embarcatech_Keypad_LedMatrix 0)
+pico_enable_stdio_usb(Embarcatech_Keypad_LedMatrix 1)
 
 # Add the standard library to the build
 target_link_libraries(Embarcatech_Keypad_LedMatrix
-        hardware_pwm
-        hardware_pio
-        pico_stdlib)
+        pico_stdlib
+        hardware_pwm)
 
 # Add the standard include files to the build
 target_include_directories(Embarcatech_Keypad_LedMatrix PRIVATE
@@ -57,7 +73,8 @@ target_include_directories(Embarcatech_Keypad_LedMatrix PRIVATE
 
 # Add any user requested libraries
 target_link_libraries(Embarcatech_Keypad_LedMatrix 
-        
+        hardware_pio
+        hardware_clocks
         )
 
 pico_add_extra_outputs(Embarcatech_Keypad_LedMatrix)
