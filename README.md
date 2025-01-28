@@ -37,7 +37,7 @@ diagram.json e clique no botão verde para iniciar a simulação.
 Enquanto na simulação, o usuário pode clicar nos botões do teclado da simulação
 a fim de acender as luzes conectadas à placa ou iniciar o buzzer.
 
-As teclas *1*, *2*, *3* e *4* usam a matriz leds para gerar, cada tecla, uma animação diferente.
+As teclas *1*, *2*, *3*, *4* e *5* usam a matriz leds para gerar, cada tecla, uma animação diferente.
 
 A tecla *A* desliga todos os leds.
 
