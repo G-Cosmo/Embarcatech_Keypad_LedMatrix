@@ -389,7 +389,8 @@ void pico_keypad_control_led(char key) {
             npWrite();
             break;
         case 'A':
-            
+            npClear();
+            npWrite();
             break;
         case '4':
             npClear(); 
@@ -416,7 +417,12 @@ void pico_keypad_control_led(char key) {
             npWrite();
             break;
         case 'B':
-            
+            npClear(); 
+            for (int i = 0; i < 25; i++)
+            {
+                npSetLED(i, 0, 0, 255);
+            }
+            npWrite();
             break;
         case '7':
             npClear();
@@ -443,11 +449,32 @@ void pico_keypad_control_led(char key) {
             npWrite();
             break;
         case 'C':
-            
+            npClear(); 
+            for (int i = 0; i < 25; i++)
+            {
+                npSetLED(i, 204, 0, 0);
+            }
+            npWrite();
+            break;
+        case 'D':
+            npClear(); 
+            for (int i = 0; i < 25; i++)
+            {
+                npSetLED(i, 0, 127, 0);
+            }
+            npWrite();
             break;
         case '0': // Desliga todos os LEDS de uma vez
             play_musica(buzzer_pin);
             npClear();
+            break;
+        case '#':
+            npClear(); 
+            for (int i = 0; i < 25; i++)
+            {
+                npSetLED(i, 051, 051, 051);
+            }
+            npWrite();
             break;
         case '*': //Reset
             sleep_ms(1000); // Espera 1 segundo antes de reiniciar no modo bootset
