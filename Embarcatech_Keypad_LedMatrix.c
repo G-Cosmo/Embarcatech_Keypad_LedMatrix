@@ -251,6 +251,13 @@ void print_frame(int frame[5][5][3], int sleep_time)
     npClear();
 }
 
+void setBrightness(uint8_t r, uint8_t g, uint8_t b, float brightness) {
+    for (int i = 0; i < LED_COUNT; i++) {
+        npSetLED(i, r * brightness, g * brightness, b * brightness);
+    }
+    npWrite();
+}
+
 void animacao1(){
     for (int k = 0; k < 3; k++) {
         for (int i = 0; i < 25; i++) {
@@ -797,37 +804,21 @@ void pico_keypad_control_led(char key) {
             npClear();
             npWrite();
             break;
-        case 'B':
-            npClear(); 
-            for (int i = 0; i < 25; i++)
-            {
-                npSetLED(i, 0, 0, 255);
-            }
-            npWrite();
+        case 'B': // 100% de luminosidade
+            npClear();
+            setBrightness(0, 0, 255, 1.0); // Azul com 100% de brilho
             break;
-        case 'C':
-            npClear(); 
-            for (int i = 0; i < 25; i++)
-            {
-                npSetLED(i, 255, 0, 0);
-            }
-            npWrite();
+        case 'C': // 80% de luminosidade
+            npClear();
+            setBrightness(255, 0, 0, 0.8); // Vermelho com 80% de brilho
             break;
-        case 'D':
-            npClear(); 
-            for (int i = 0; i < 25; i++)
-            {
-                npSetLED(i, 0, 127, 0);
-            }
-            npWrite();
+        case 'D': // 50% de luminosidade
+            npClear();
+            setBrightness(0, 127, 0, 0.5); // Verde com 50% de brilho
             break;
-        case '#':
-            npClear(); 
-            for (int i = 0; i < 25; i++)
-            {
-                npSetLED(i, 051, 051, 051);
-            }
-            npWrite();
+        case '#': // 20% de luminosidade
+            npClear();
+            setBrightness(51, 51, 51, 0.2); // Cinza com 20% de brilho
             break;
         case '*': //Reset
             sleep_ms(1000); // Espera 1 segundo antes de reiniciar no modo bootset
