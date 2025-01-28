@@ -682,6 +682,88 @@ void animacao4(){
     print_frame(frame9, sleep);
 }
 
+void animacao5() {
+    int sleep_time = 500; // Tempo de espera entre os frames da animação
+
+    // Definindo as cores azul e amarelo
+    int azul[3] = {0, 0, 255};
+    int amarelo[3] = {255, 255, 0};
+
+    // Frame 1: Diagonal principal azul
+    for (int linha = 0; linha < 5; linha++) {
+        for (int coluna = 0; coluna < 5; coluna++) {
+            int posicao = getIndex(linha, coluna);
+            if (linha == coluna) {
+                npSetLED(posicao, azul[0], azul[1], azul[2]);
+            } else {
+                npSetLED(posicao, amarelo[0], amarelo[1], amarelo[2]);
+            }
+        }
+    }
+    npWrite();
+    sleep_ms(sleep_time);
+
+    // Frame 2: Diagonal secundária azul
+    for (int linha = 0; linha < 5; linha++) {
+        for (int coluna = 0; coluna < 5; coluna++) {
+            int posicao = getIndex(linha, coluna);
+            if (linha + coluna == 4) {
+                npSetLED(posicao, azul[0], azul[1], azul[2]);
+            } else {
+                npSetLED(posicao, amarelo[0], amarelo[1], amarelo[2]);
+            }
+        }
+    }
+    npWrite();
+    sleep_ms(sleep_time);
+
+    // Frame 3: Bordas azuis
+    for (int linha = 0; linha < 5; linha++) {
+        for (int coluna = 0; coluna < 5; coluna++) {
+            int posicao = getIndex(linha, coluna);
+            if (linha == 0 || linha == 4 || coluna == 0 || coluna == 4) {
+                npSetLED(posicao, azul[0], azul[1], azul[2]);
+            } else {
+                npSetLED(posicao, amarelo[0], amarelo[1], amarelo[2]);
+            }
+        }
+    }
+    npWrite();
+    sleep_ms(sleep_time);
+
+    // Frame 4: Cruz azul
+    for (int linha = 0; linha < 5; linha++) {
+        for (int coluna = 0; coluna < 5; coluna++) {
+            int posicao = getIndex(linha, coluna);
+            if (linha == 2 || coluna == 2) {
+                npSetLED(posicao, azul[0], azul[1], azul[2]);
+            } else {
+                npSetLED(posicao, amarelo[0], amarelo[1], amarelo[2]);
+            }
+        }
+    }
+    npWrite();
+    sleep_ms(sleep_time);
+
+    // Frame 5: X azul
+    for (int linha = 0; linha < 5; linha++) {
+        for (int coluna = 0; coluna < 5; coluna++) {
+            int posicao = getIndex(linha, coluna);
+            if (linha == coluna || linha + coluna == 4) {
+                npSetLED(posicao, azul[0], azul[1], azul[2]);
+            } else {
+                npSetLED(posicao, amarelo[0], amarelo[1], amarelo[2]);
+            }
+        }
+    }
+    npWrite();
+    sleep_ms(sleep_time);
+
+    // Limpar os LEDs após a animação
+    npClear();
+    npWrite();
+}
+
 void pico_keypad_control_led(char key) {
     switch (key) {
         case '1':
@@ -697,6 +779,7 @@ void pico_keypad_control_led(char key) {
             animacao4();
             break;
         case '5':
+            animacao5();
             break;
         case '6':
             break;
