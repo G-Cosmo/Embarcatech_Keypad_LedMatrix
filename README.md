@@ -45,3 +45,7 @@ As teclas *B*, *C*, *D* e *#* acendem todas as leds nas cores azul, vermelho, ve
 respectivamente, com a intensidade das luzes variando de acordo com a tecla pressionada.
 
 A tecla *0* inicia o buzzer, o qual toca uma música enquanto a matriz de leds faz uma animação.
+
+# Vídeo demonstrativo
+
+https://youtu.be/ebN2bdJ0Kng
