@@ -14,7 +14,7 @@
 #define LED_COUNT 25                // Número de LEDs na matriz
 #define LED_PIN 7                   // Pino GPIO conectado aos LEDs
 
-const uint buzzer_pin = 14; // GPIO do buzzer
+const uint buzzer_pin = 10; // GPIO do buzzer
 const uint row_pins[4] = {28, 27, 26, 22}; 
 const uint col_pins[4] = {21, 20, 19, 18};
 
@@ -28,7 +28,7 @@ const char keys[ROWS][COLS] = {
 
 // Estrutura para representar um pixel com componentes RGB
 struct pixel_t { 
-    uint8_t G, R, B;                // Componentes de cor: Verde, Vermelho e Azul
+    uint32_t G, R, B;                // Componentes de cor: Verde, Vermelho e Azul
 };
 
 
@@ -92,9 +92,9 @@ void npWrite()
 {
     for (uint i = 0; i < LED_COUNT; ++i)                  // Iterar sobre todos os LEDs
     {
-        pio_sm_put_blocking(np_pio, sm, leds[i].G);       // Enviar componente verde
-        pio_sm_put_blocking(np_pio, sm, leds[i].R);       // Enviar componente vermelho
-        pio_sm_put_blocking(np_pio, sm, leds[i].B);       // Enviar componente azul
+        pio_sm_put_blocking(np_pio, sm, leds[i].G<<24);       // Enviar componente verde
+        pio_sm_put_blocking(np_pio, sm, leds[i].R<<24);       // Enviar componente vermelho
+        pio_sm_put_blocking(np_pio, sm, leds[i].B<<24);       // Enviar componente azul
     }
 }
 
@@ -251,9 +251,10 @@ void print_frame(int frame[5][5][3], int sleep_time)
     npClear();
 }
 
-void setBrightness(uint8_t r, uint8_t g, uint8_t b, float brightness) {
+//Acende toda a matriz controlando o brilho
+void setBrightness(uint8_t r, uint8_t g, uint8_t b, float brightness_red, float brightness_green, float brightness_blue) {
     for (int i = 0; i < LED_COUNT; i++) {
-        npSetLED(i, r * brightness, g * brightness, b * brightness);
+        npSetLED(i, r * brightness_red, g * brightness_green, b * brightness_blue);
     }
     npWrite();
 }
@@ -795,6 +796,8 @@ void pico_keypad_control_led(char key) {
         case '8':
             break;
         case '9':
+            npClear();
+            setBrightness(255, 0, 0, 0.3, 0, 0);
             break;
         case '0':
             play_musica(buzzer_pin);
@@ -806,19 +809,19 @@ void pico_keypad_control_led(char key) {
             break;
         case 'B': // 100% de luminosidade
             npClear();
-            setBrightness(0, 0, 255, 1.0); // Azul com 100% de brilho
+            setBrightness(0, 0, 255, 0, 0, 1); // Azul com 100% de brilho
             break;
         case 'C': // 80% de luminosidade
             npClear();
-            setBrightness(255, 0, 0, 0.8); // Vermelho com 80% de brilho
+            setBrightness(255, 0, 0, 0.8, 0, 0); // Vermelho com 80% de brilho
             break;
         case 'D': // 50% de luminosidade
             npClear();
-            setBrightness(0, 127, 0, 0.5); // Verde com 50% de brilho
+            setBrightness(0, 255, 0, 0, 0.5, 0); // Verde com 50% de brilho
             break;
         case '#': // 20% de luminosidade
             npClear();
-            setBrightness(51, 51, 51, 0.2); // Cinza com 20% de brilho
+            setBrightness(255, 255, 255, 0.2, 0.2, 0.2); // Cinza com 20% de brilho
             break;
         case '*': //Reset
             sleep_ms(1000); // Espera 1 segundo antes de reiniciar no modo bootset

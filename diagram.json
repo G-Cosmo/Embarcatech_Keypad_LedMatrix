@@ -133,10 +133,10 @@
     [ "keypad1:C3", "pico:GP19", "purple", [ "v0" ] ],
     [ "keypad1:C4", "pico:GP18", "purple", [ "v0" ] ],
     [ "bz1:1", "pico:GND.4", "black", [ "h0" ] ],
-    [ "bz1:2", "pico:GP14", "red", [ "h67.2", "v19.6" ] ],
     [ "keypad1:R1", "pico:GP28", "gold", [ "v0" ] ],
     [ "keypad1:R2", "pico:GP27", "gold", [ "v0" ] ],
-    [ "keypad1:R3", "pico:GP26", "gold", [ "v0" ] ]
+    [ "keypad1:R3", "pico:GP26", "gold", [ "v0" ] ],
+    [ "bz1:2", "pico:GP10", "red", [ "h28.8", "v-28.4" ] ]
   ],
   "dependencies": {}
 }
